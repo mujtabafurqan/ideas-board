@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import { ethers } from "ethers";
 import IdeaBoard from '../../utils/IdeaBoard.json';
 import { useNavigate } from 'react-router-dom';
+import Alert from 'react-bootstrap/Alert';
 
 
 
