@@ -79,9 +79,9 @@ export default function Home(){
             const provider = new ethers.providers.Web3Provider(ethereum);
             const signer = provider.getSigner();
             const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, IdeaBoard.abi, signer);
-            const hasAccessTemp = await connectedContract.hasAccess();
-            console.log("hasAccess:",hasAccessTemp);
-            setHasAccess(hasAccessTemp);
+            const hasAccess = await connectedContract.hasAccess();
+            console.log("hasAccess:",hasAccess);
+            setHasAccess(hasAccess);
         } else {
             <Alert>
                 Make sure you have metamask!
