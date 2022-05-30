@@ -80,8 +80,8 @@ export default function Home(){
             const signer = provider.getSigner();
             const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, IdeaBoard.abi, signer);
             const hasAccessTemp = await connectedContract.hasAccess();
-            console.log("hasAccess:",hasAccess);
-            setHasAccess(hasAccess);
+            console.log("hasAccess:",hasAccessTemp);
+            setHasAccess(hasAccessTemp);
         } else {
             <Alert>
                 Make sure you have metamask!
