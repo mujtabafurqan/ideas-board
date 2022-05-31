@@ -4,43 +4,49 @@ import { useNavigate } from 'react-router-dom';
 import IdeaBoard from '../../utils/IdeaBoard.json';
 import { ethers } from "ethers";
 import './Home.css';
-import Alert from 'react-bootstrap/Alert';
+import {alertService} from '../../components/Alert/alert.service';
 export default function Home(){
 
     const navigate = useNavigate();
+    const CONTRACT_ADDRESS = "0x4bD1177a4B59bB9E26f32F43c78BB2760a42006C";
+    
     const [ideaList, setIdeaList] = useState([]);
     const [hasAccess, setHasAccess] = useState(false);
 
-    const CONTRACT_ADDRESS = "0x4bD1177a4B59bB9E26f32F43c78BB2760a42006C"; 
-    const upvote = async (id) => {
+    const getContract = () => {
         const { ethereum } = window;
         if (ethereum) {
             const provider = new ethers.providers.Web3Provider(ethereum);
             const signer = provider.getSigner();
             const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, IdeaBoard.abi, signer);
+            return connectedContract;
+        } else {
+            alertService.error("Make sure you have metamask!");
+        }
+    } 
+    const upvote = async (id) => {
+        try{
+            const connectedContract = getContract();
             let upvoteTxn = await connectedContract.upvote(id);
             await upvoteTxn.wait();
             console.log(`Upvoted, see transaction: https://rinkeby.etherscan.io/tx/${upvoteTxn.hash}`);
-        } else {
-            <Alert>
-                Make sure you have metamask!
-            </Alert>
+        }
+        catch(err){
+            console.log(err);
+            alertService.error("Error while upvoting, please try again!");
         }
     }
 
     const downvote = async (id) => {
-        const { ethereum } = window;
-        if (ethereum) {
-            const provider = new ethers.providers.Web3Provider(ethereum);
-            const signer = provider.getSigner();
-            const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, IdeaBoard.abi, signer);
-            let downvoteTxn = await connectedContract.downvote(id);
-            await downvoteTxn.wait();
-            console.log(`Downvoted, see transaction: https://rinkeby.etherscan.io/tx/${downvoteTxn.hash}`);
-        } else {
-            <Alert>
-                Make sure you have metamask!
-            </Alert>
+        try{
+        const connectedContract = getContract();
+        let downvoteTxn = await connectedContract.downvote(id);
+        await downvoteTxn.wait();
+        console.log(`Downvoted, see transaction: https://rinkeby.etherscan.io/tx/${downvoteTxn.hash}`);
+        }
+        catch(err){
+            console.log(err);
+            alertService.error("Error while downvoting, please try again!");
         }
     }
 
@@ -51,11 +57,8 @@ export default function Home(){
     },[]);
 
     const fetchIdeas = async () => {
-        const { ethereum } = window;
-        if (ethereum) {
-            const provider = new ethers.providers.Web3Provider(ethereum);
-            const signer = provider.getSigner();
-            const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, IdeaBoard.abi, signer);
+        try{
+            const connectedContract = getContract();
             const ideaArr=[];
             for(let i = 0; i < 10; i++) {
                 const idea = await connectedContract.getIdea(i)
@@ -65,32 +68,36 @@ export default function Home(){
                 ideaArr.push(idea);
             }
             setIdeaList(ideaArr);
-        } else {
-            <Alert>
-                Make sure you have metamask!
-            </Alert>
+        }
+        catch(err){
+            console.log(err);
+            alertService.error("Error while fetching ideas, please try again!");
         }
     }
 
     const checkAccess = async () => {
-        console.log("hasAccess:",hasAccess);
-        const { ethereum } = window;
-        if (ethereum) {
-            const provider = new ethers.providers.Web3Provider(ethereum);
-            const signer = provider.getSigner();
-            const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, IdeaBoard.abi, signer);
+        try{
+            const connectedContract = getContract();
             const hasAccess = await connectedContract.hasAccess();
             console.log("hasAccess:",hasAccess);
             setHasAccess(hasAccess);
-        } else {
-            <Alert>
-                Make sure you have metamask!
-            </Alert>
+        }
+        catch(err){
+            console.log(err);
+            alertService.error("Error while checking access, please try again!");
+        }
+    }
+
+    const addIdea = () => {
+        if(hasAccess){
+            navigate("addIdea");
+        }else{
+            alertService.error("You don't have access to this feauture. Please mint an NFT to get access.");
         }
     }
     return (
         <div className='homeDiv'>
-            <button onClick={() => navigate('addIdea')}className='cta-button connect-wallet-button'>
+            <button onClick={addIdea} className='cta-button connect-wallet-button'>
                 Add an idea
             </button>
             {ideaList.map((idea, index) => {

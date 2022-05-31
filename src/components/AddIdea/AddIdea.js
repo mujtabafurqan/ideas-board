@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import IdeaBoard from '../../utils/IdeaBoard.json';
 import { useNavigate } from 'react-router-dom';
 import Alert from 'react-bootstrap/Alert';
+import {alertService} from '../../components/Alert/alert.service';
 
 
 
@@ -22,9 +23,15 @@ export default function AddIdea(){
             const provider = new ethers.providers.Web3Provider(ethereum);
             const signer = provider.getSigner();
             const connectedContract = new ethers.Contract("0x4bD1177a4B59bB9E26f32F43c78BB2760a42006C", IdeaBoard.abi, signer);
-            let createTxn = await connectedContract.createIdea(form.elements.ideaTitle.value, form.elements.ideaDescription.value); 
-            await createTxn.wait();
-            console.log("ideaCreate")
+            try{
+                let createTxn = await connectedContract.createIdea(form.elements.ideaTitle.value, form.elements.ideaDescription.value); 
+                await createTxn.wait();
+            }
+            catch(err){
+                console.log(err);
+                alertService.error("Error while creating idea, please try again!");
+            }
+            console.log("ideaCreated")
 
         } else {
             <Alert>
@@ -34,7 +41,7 @@ export default function AddIdea(){
         setValidated(true);
         navigate("/");
       };
-
+    
     return (
         <div>
             <h1>Add an idea</h1>

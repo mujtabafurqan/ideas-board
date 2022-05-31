@@ -8,24 +8,42 @@ import Home from './components/Home/Home';
 import AddIdea from './components/AddIdea/AddIdea';
 import { Route, Routes } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import Alert from 'react-bootstrap/Alert';
-
-
+import {alertService} from './components/Alert/alert.service';
+import AlertComp from './components/Alert/AlertComp';
+import { trackPromise } from 'react-promise-tracker';
+import { usePromiseTracker } from "react-promise-tracker";
+import {ThreeDots} from 'react-loader-spinner';
 
 function App() {
 
   const navigate = useNavigate();
 
   const [currentAccount, setCurrentAccount] = useState("");
+  const [eth, setEth] = useState(null);
   
+  const LoadingIndicator = props => {
+    const { promiseInProgress } = usePromiseTracker();
+     return (
+        promiseInProgress && 
+        <div
+          style={{
+            width: "100%",
+            height: "25px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+        >
+          <ThreeDots color="#2BAD60" height="30" width="30" />
+        </div>
+      );  
+   }
   const checkIfWalletIsConnected = async () => {
     const { ethereum } = window;
-
+    setEth(ethereum);
     if (!ethereum) {
-      <Alert>
-                Make sure you have metamask!
-      </Alert>
-      return;
+      console.log("No ethereum found");
+      alertService.error("Make sure you have metamask!");
     } else {
       console.log("We have the ethereum object", ethereum);
     }
@@ -37,7 +55,9 @@ function App() {
       console.log("Found an authorized account:", account);
       setCurrentAccount(account);
     } else {
-      console.log("No authorized account found");
+      // <Alert>
+      //   No Authorized accounts found!
+      // </Alert>;
     }
   }
 
@@ -46,17 +66,17 @@ function App() {
   
     try {
       const { ethereum } = window;
-  
+      
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, NFTContract.abi, signer);
   
         console.log("Going to pop wallet now to pay gas...")
-        let nftTxn = await connectedContract.makeNFT();
+        let nftTxn = await trackPromise(connectedContract.makeNFT());
   
         console.log("Mining...please wait.")
-        await nftTxn.wait();
+        await trackPromise(nftTxn.wait());
         
         console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
   
@@ -73,17 +93,15 @@ function App() {
   */
   const connectWallet = async () => {
     try {
-      const { ethereum } = window;
-
-      if (!ethereum) {
-        alert("Get MetaMask!");
+      if (!eth) {
+        alertService.error("Make sure you have metamask!");
         return;
       }
 
       /*
       * Fancy method to request access to account.
       */
-      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await eth.request({ method: "eth_requestAccounts" });
 
       /*
       * Boom! This should print out public address once we authorize Metamask.
@@ -101,9 +119,29 @@ function App() {
       Connect to Wallet
     </button>
   );
+  
+  const handleAccountChange = (...args) => {
+    // you can console to see the args
+    const accounts = args[0] ;
+    // if no accounts that means we are not connected
+    if (accounts.length === 0) {
+      alertService.error("Please connect to your wallet!");
+      // our old data is not current connected account
+      // currentAccount account that you already fetched and assume you stored it in useState
+    } else if (accounts[0] !== currentAccount) {
+      // if account changed you should update the currentAccount so you return the updated the data
+      // assuming you have [currentAccount,setCurrentAccount]=useState
+      // however you are tracking the state currentAccount, you have to update it. in case of redux you have to dispatch update action etc
+      setCurrentAccount(accounts[0]);
+    }
+  };
 
   useEffect(() => {
     checkIfWalletIsConnected();
+    eth?.on("accountsChanged", handleAccountChange);
+    return () => {
+      eth?.removeListener("accountsChanged", handleAccountChange);
+    };
   }, [])
 
   return (
@@ -127,12 +165,12 @@ function App() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-
+      <LoadingIndicator />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="addIdea" element={<AddIdea />} />
       </Routes>
-        
+      <AlertComp />
     </div>
   );
 }
