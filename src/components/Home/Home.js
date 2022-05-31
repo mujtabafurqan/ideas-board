@@ -9,9 +9,19 @@ export default function Home(){
 
     const navigate = useNavigate();
     const CONTRACT_ADDRESS = "0x4bD1177a4B59bB9E26f32F43c78BB2760a42006C";
-    
+
     const [ideaList, setIdeaList] = useState([]);
     const [hasAccess, setHasAccess] = useState(false);
+    const [receipt, setReceipt] = useState("");
+
+
+    useEffect (() => {
+        console.log(receipt, "recipt after the trx")
+        fetchIdeas();
+    }, [receipt])
+    
+    
+
 
     const getContract = () => {
         const { ethereum } = window;
@@ -28,7 +38,8 @@ export default function Home(){
         try{
             const connectedContract = getContract();
             let upvoteTxn = await connectedContract.upvote(id);
-            await upvoteTxn.wait();
+            const receipt = await upvoteTxn.wait();
+            setReceipt(receipt)
             console.log(`Upvoted, see transaction: https://rinkeby.etherscan.io/tx/${upvoteTxn.hash}`);
         }
         catch(err){
@@ -41,12 +52,13 @@ export default function Home(){
         try{
         const connectedContract = getContract();
         let downvoteTxn = await connectedContract.downvote(id);
-        await downvoteTxn.wait();
+        const receipt = await downvoteTxn.wait();
+        setReceipt(receipt)
         console.log(`Downvoted, see transaction: https://rinkeby.etherscan.io/tx/${downvoteTxn.hash}`);
         }
         catch(err){
             console.log(err);
-            alertService.error("Error while downvoting, please try again!");
+            alertService.info("Error while downvoting, please try again!");
         }
     }
 
@@ -71,7 +83,7 @@ export default function Home(){
         }
         catch(err){
             console.log(err);
-            alertService.error("Error while fetching ideas, please try again!");
+            alertService.warn("Fetching Ideas not possible without NFT ownership");
         }
     }
 

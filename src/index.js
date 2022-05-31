@@ -6,7 +6,8 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
 import { BrowserRouter } from "react-router-dom";
 import { usePromiseTracker } from "react-promise-tracker";
-import {RevolvingDot} from 'react-loader-spinner';
+import { Spinner } from 'react-bootstrap';
+
 
 const LoadingIndicator = props => {
   const { promiseInProgress } = usePromiseTracker();
@@ -18,7 +19,7 @@ const LoadingIndicator = props => {
           left: "50%",
         }}
       >
-        <RevolvingDot color="#2BAD60" height="100" width="100" />
+        <Spinner color="#2BAD60" height="100" width="100" />
       </div>
     );  
  }
