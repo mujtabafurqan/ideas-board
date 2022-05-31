@@ -49,7 +49,7 @@ export default function AddIdea(){
             <Form noValidate validated={validated} className='addIdeaForm' onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="ideaTitle">
                     <Form.Label>Title</Form.Label>
-                    <Form.Control required type="text" placeholder="Enter the Tite" />
+                    <Form.Control required type="text" maxlength="50" placeholder="Enter the Tite" />
                     <Form.Text className="text-muted">
                     Please limit this to 5-6words.
                     </Form.Text>
@@ -57,7 +57,7 @@ export default function AddIdea(){
 
                 <Form.Group className="mb-3" controlId="ideaDescription">
                     <Form.Label>Description</Form.Label>
-                    <Form.Control required as="textarea" rows={5} placeholder="Enter the Description" />
+                    <Form.Control required as="textarea" maxlength="250" rows={5} placeholder="Enter the Description" />
                 </Form.Group>
 
                 <Button variant="primary" type="submit">
