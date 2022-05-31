@@ -16,6 +16,11 @@ export default function Home(){
     const [hasAccess, setHasAccess] = useState(false);
     const [receipt, setReceipt] = useState("");
 
+    useEffect (() => {
+        checkAccess();
+        fetchIdeas();
+        console.log("Fetching ideas...",ideaList);
+    },[]);
 
     useEffect (() => {
         console.log(receipt, "recipt after the trx")
@@ -64,11 +69,6 @@ export default function Home(){
         }
     }
 
-    useEffect (() => {
-        checkAccess();
-        fetchIdeas();
-        console.log("Fetching ideas...",ideaList);
-    },[]);
 
     const fetchIdeas = async () => {
         try{
@@ -81,7 +81,7 @@ export default function Home(){
                     break;
                 ideaArr.push(idea);
             }
-            setIdeaList([...ideaList,...ideaArr]);
+            setIdeaList(ideaArr);
         }
         catch(err){
             console.log(err);
