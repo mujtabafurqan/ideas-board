@@ -23,7 +23,7 @@ export default function AddIdea(){
         if (ethereum) {
             const provider = new ethers.providers.Web3Provider(ethereum);
             const signer = provider.getSigner();
-            const connectedContract = new ethers.Contract("0x4bD1177a4B59bB9E26f32F43c78BB2760a42006C", IdeaBoard.abi, signer);
+            const connectedContract = new ethers.Contract("0x0e0D1fED7A374597806e8b7730ef32CB8408133B", IdeaBoard.abi, signer);
             try{
                 let createTxn = await connectedContract.createIdea(form.elements.ideaTitle.value, form.elements.ideaDescription.value); 
                 await trackPromise(createTxn.wait());
