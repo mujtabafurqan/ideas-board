@@ -1,6 +1,5 @@
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { useState } from 'react';
 const alertSubject = new Subject();
 const defaultId = 'default-alert';
 
@@ -20,7 +19,7 @@ export const alertService = {
 
 export const AlertType = {
     Success: 'Success',
-    Error: 'Error',
+    Error: 'Danger',
     Info: 'Info',
     Warning: 'Warning'
 }

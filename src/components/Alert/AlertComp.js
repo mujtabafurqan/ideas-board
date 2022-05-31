@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
@@ -17,18 +16,14 @@ const defaultProps = {
     fade: true
 };
 
-function AlertComp({ id, fade }) {
-    const history = useNavigate();
+function AlertComp({ id, fade }) {    
     const [alerts, setAlerts] = useState([]);
-    const [alert, setAlert] = useState({});
-    const [show, setShow] = useState(false);
 
     useEffect(() => {
         // subscribe to new alert notifications
         const subscription = alertService.onAlert(id)
             .subscribe(alert => {
-                setAlert(alert);
-                setShow(true);
+                setAlerts([...alerts, alert]);
             });
 
 
@@ -39,20 +34,40 @@ function AlertComp({ id, fade }) {
         };
     }, []);
 
+    const getAlertType = (alert) => {
+        switch (alert.type) {
+            case AlertType.Success:
+                return 'success';
+            case AlertType.Error:
+                return 'danger';
+            case AlertType.Info:
+                return 'info';
+            case AlertType.Warning:
+                return 'warning';
+            default:
+                return 'info';
+        }
+    }
+
+    const removeAlert = (alert) => {
+        setAlerts(alerts.filter(x => x !== alert));
+    }
 
     return (
         <div className="alertContainer">
             <div className="m-3">
-                {show &&
-                <Alert variant="danger">
-                    <div className='alertdiv'>
-                        {alert.message}
-                        <Button onClick={() => setShow(false)} variant="danger">
-                            Close
-                        </Button>
-                    </div>
-                </Alert>
-                }          
+                {alerts.map((alert, i) =>{
+                 return (
+                    <Alert key={i} variant={getAlertType(alert)}>
+                        <div className='alertdiv'>
+                            {alert.message}
+                            <Button onClick={() => removeAlert(alert)} variant={getAlertType(alert)}>
+                                Close
+                            </Button>
+                        </div>
+                    </Alert>    
+                 )        
+                })}                
             </div>
         </div>
     );

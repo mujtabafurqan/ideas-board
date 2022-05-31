@@ -5,24 +5,6 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
 import { BrowserRouter } from "react-router-dom";
-import { usePromiseTracker } from "react-promise-tracker";
-import { Spinner } from 'react-bootstrap';
-
-
-const LoadingIndicator = props => {
-  const { promiseInProgress } = usePromiseTracker();
-   return (
-      promiseInProgress && 
-      <div
-        style={{
-          marginLeft: "-4em",
-          left: "50%",
-        }}
-      >
-        <Spinner color="#2BAD60" height="100" width="100" />
-      </div>
-    );  
- }
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

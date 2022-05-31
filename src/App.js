@@ -30,17 +30,22 @@ function App() {
   const [network, setNetwork] = useState("")
 
   useEffect(() => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    provider.on("network", (newNetwork, oldNetwork) => {
-      
-        // When a Provider makes its initial connection, it emits a "network"
-        // event with a null oldNetwork along with the newNetwork. So, if the
-        // oldNetwork exists, it represents a changing network
-        setNetwork(newNetwork.chainId?.toString());
-        if (oldNetwork) {
-            window.location.reload();
-        }
-    });
+    try{
+      const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+      provider.on("network", (newNetwork, oldNetwork) => {
+        
+          // When a Provider makes its initial connection, it emits a "network"
+          // event with a null oldNetwork along with the newNetwork. So, if the
+          // oldNetwork exists, it represents a changing network
+          setNetwork(newNetwork.chainId?.toString());
+          if (oldNetwork) {
+              window.location.reload();
+          }
+      });
+    }catch(err){
+      console.log(err);
+      alertService.error("Make sure you have metamask!")
+    }
     checkIfWalletIsConnected()
   }, [eth])
   
@@ -194,10 +199,12 @@ function App() {
         </Container>
       </Navbar>
       <LoadingIndicator />
+      {currentAccount !== "" && 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="addIdea" element={<AddIdea />} />
       </Routes>
+      }
       <AlertComp />
     </div>
   );

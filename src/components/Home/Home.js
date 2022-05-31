@@ -5,6 +5,8 @@ import IdeaBoard from '../../utils/IdeaBoard.json';
 import { ethers } from "ethers";
 import './Home.css';
 import {alertService} from '../../components/Alert/alert.service';
+import { trackPromise } from 'react-promise-tracker';
+
 export default function Home(){
 
     const navigate = useNavigate();
@@ -38,7 +40,7 @@ export default function Home(){
         try{
             const connectedContract = getContract();
             let upvoteTxn = await connectedContract.upvote(id);
-            const receipt = await upvoteTxn.wait();
+            const receipt = await trackPromise(upvoteTxn.wait());
             setReceipt(receipt)
             console.log(`Upvoted, see transaction: https://rinkeby.etherscan.io/tx/${upvoteTxn.hash}`);
         }
@@ -52,7 +54,7 @@ export default function Home(){
         try{
         const connectedContract = getContract();
         let downvoteTxn = await connectedContract.downvote(id);
-        const receipt = await downvoteTxn.wait();
+        const receipt = await trackPromise(downvoteTxn.wait());
         setReceipt(receipt)
         console.log(`Downvoted, see transaction: https://rinkeby.etherscan.io/tx/${downvoteTxn.hash}`);
         }
@@ -72,14 +74,14 @@ export default function Home(){
         try{
             const connectedContract = getContract();
             const ideaArr=[];
-            for(let i = 0; i < 10; i++) {
-                const idea = await connectedContract.getIdea(i)
+            for(let i = 0; i < 100; i++) {
+                const idea = await trackPromise(connectedContract.getIdea(i));
                 console.log("idea:",idea)
-                if(idea[3]== "")
+                if(idea[3]=== "")
                     break;
                 ideaArr.push(idea);
             }
-            setIdeaList(ideaArr);
+            setIdeaList([...ideaList,...ideaArr]);
         }
         catch(err){
             console.log(err);
@@ -90,7 +92,7 @@ export default function Home(){
     const checkAccess = async () => {
         try{
             const connectedContract = getContract();
-            const hasAccess = await connectedContract.hasAccess();
+            const hasAccess = await trackPromise(connectedContract.hasAccess());
             console.log("hasAccess:",hasAccess);
             setHasAccess(hasAccess);
         }
@@ -112,11 +114,12 @@ export default function Home(){
             <button onClick={addIdea} className='cta-button connect-wallet-button'>
                 Add an idea
             </button>
+            {ideaList.length === 0 && <h1>No Ideas yet. Please add yours!</h1>}
             {ideaList.map((idea, index) => {
                 return(
                     <Card style={{ width: '70%', border: '1px solid grey', borderRadius: '30px', margin: '20px' }}>
                         <Card.Body>
-                        <Card.Title>{idea[3]}</Card.Title>
+                        <Card.Title>#{(idea[0].toNumber()+1)} : {idea[3]}</Card.Title>
                         <Card.Subtitle className="mb-2 text-muted">{idea[5]}</Card.Subtitle>
                         <Card.Text>
                             {idea[4]}
@@ -135,7 +138,6 @@ export default function Home(){
                     </Card>
                 )
             })}
-            
         </div>
     )
 }
