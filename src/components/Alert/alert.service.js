@@ -1,6 +1,5 @@
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { useState } from 'react';
 const alertSubject = new Subject();
 const defaultId = 'default-alert';
 
