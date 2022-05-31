@@ -6,6 +6,7 @@ import IdeaBoard from '../../utils/IdeaBoard.json';
 import { useNavigate } from 'react-router-dom';
 import Alert from 'react-bootstrap/Alert';
 import {alertService} from '../../components/Alert/alert.service';
+import { trackPromise } from 'react-promise-tracker';
 
 
 
@@ -25,7 +26,7 @@ export default function AddIdea(){
             const connectedContract = new ethers.Contract("0x4bD1177a4B59bB9E26f32F43c78BB2760a42006C", IdeaBoard.abi, signer);
             try{
                 let createTxn = await connectedContract.createIdea(form.elements.ideaTitle.value, form.elements.ideaDescription.value); 
-                await createTxn.wait();
+                await trackPromise(createTxn.wait());
             }
             catch(err){
                 console.log(err);

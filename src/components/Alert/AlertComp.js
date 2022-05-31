@@ -17,9 +17,7 @@ const defaultProps = {
     fade: true
 };
 
-function AlertComp({ id, fade }) {
-    const history = useNavigate();
-    const [alerts, setAlerts] = useState([]);
+function AlertComp({ id, fade }) {    
     const [alert, setAlert] = useState({});
     const [show, setShow] = useState(false);
 
@@ -39,15 +37,30 @@ function AlertComp({ id, fade }) {
         };
     }, []);
 
+    const getAlertType = (alert) => {
+        console.log(alert);
+        switch (alert.type) {
+            case AlertType.Success:
+                return 'success';
+            case AlertType.Error:
+                return 'danger';
+            case AlertType.Info:
+                return 'info';
+            case AlertType.Warning:
+                return 'warning';
+            default:
+                return 'info';
+        }
+    }
 
     return (
         <div className="alertContainer">
             <div className="m-3">
                 {show &&
-                <Alert variant="danger">
+                <Alert variant={getAlertType(alert)}>
                     <div className='alertdiv'>
                         {alert.message}
-                        <Button onClick={() => setShow(false)} variant="danger">
+                        <Button onClick={() => setShow(false)} variant={getAlertType(alert)}>
                             Close
                         </Button>
                     </div>

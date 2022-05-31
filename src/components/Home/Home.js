@@ -5,6 +5,8 @@ import IdeaBoard from '../../utils/IdeaBoard.json';
 import { ethers } from "ethers";
 import './Home.css';
 import {alertService} from '../../components/Alert/alert.service';
+import { trackPromise } from 'react-promise-tracker';
+
 export default function Home(){
 
     const navigate = useNavigate();
@@ -28,7 +30,7 @@ export default function Home(){
         try{
             const connectedContract = getContract();
             let upvoteTxn = await connectedContract.upvote(id);
-            await upvoteTxn.wait();
+            await trackPromise(upvoteTxn.wait());
             console.log(`Upvoted, see transaction: https://rinkeby.etherscan.io/tx/${upvoteTxn.hash}`);
         }
         catch(err){
@@ -41,7 +43,7 @@ export default function Home(){
         try{
         const connectedContract = getContract();
         let downvoteTxn = await connectedContract.downvote(id);
-        await downvoteTxn.wait();
+        await trackPromise(downvoteTxn.wait());
         console.log(`Downvoted, see transaction: https://rinkeby.etherscan.io/tx/${downvoteTxn.hash}`);
         }
         catch(err){
@@ -61,7 +63,7 @@ export default function Home(){
             const connectedContract = getContract();
             const ideaArr=[];
             for(let i = 0; i < 10; i++) {
-                const idea = await connectedContract.getIdea(i)
+                const idea = await trackPromise(connectedContract.getIdea(i));
                 console.log("idea:",idea)
                 if(idea[3]== "")
                     break;
@@ -78,7 +80,7 @@ export default function Home(){
     const checkAccess = async () => {
         try{
             const connectedContract = getContract();
-            const hasAccess = await connectedContract.hasAccess();
+            const hasAccess = await trackPromise(connectedContract.hasAccess());
             console.log("hasAccess:",hasAccess);
             setHasAccess(hasAccess);
         }
