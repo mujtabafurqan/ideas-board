@@ -50,6 +50,7 @@ function App() {
   }, [eth])
   
   const LoadingIndicator = props => {
+    console.log("loader called");
     const { promiseInProgress } = usePromiseTracker();
      return (
         promiseInProgress && 
@@ -59,10 +60,13 @@ function App() {
             height: "25px",
             display: "flex",
             justifyContent: "center",
-            alignItems: "center"
+            alignItems: "center",
+            marginTop: "10px"
           }}
         >
-          <Spinner color="#2BAD60" height="30" width="30" />
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
         </div>
       );  
    }
@@ -182,7 +186,7 @@ function App() {
       <Navbar>
         <Container>
           
-          <Navbar.Brand onClick={() => navigate("/")}>Idea Board</Navbar.Brand>
+          <Navbar.Brand onClick={() => navigate("/")}><h1>Idea Board</h1></Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
