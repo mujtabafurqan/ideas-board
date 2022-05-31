@@ -12,14 +12,37 @@ import {alertService} from './components/Alert/alert.service';
 import AlertComp from './components/Alert/AlertComp';
 import { trackPromise } from 'react-promise-tracker';
 import { usePromiseTracker } from "react-promise-tracker";
-import {ThreeDots} from 'react-loader-spinner';
+import Spinner from 'react-bootstrap/Spinner'
 
+
+//TODO - Prevent app from using non desired networks 
+//TODO- referesh page automatically once nft is detected
+// TODO - refresh page once vote tx is completeds - DONE
+// TODO - add character limit on title and description - DONE
 function App() {
 
   const navigate = useNavigate();
 
+  
+
   const [currentAccount, setCurrentAccount] = useState("");
   const [eth, setEth] = useState(null);
+  const [network, setNetwork] = useState("")
+
+  useEffect(() => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    provider.on("network", (newNetwork, oldNetwork) => {
+      
+        // When a Provider makes its initial connection, it emits a "network"
+        // event with a null oldNetwork along with the newNetwork. So, if the
+        // oldNetwork exists, it represents a changing network
+        setNetwork(newNetwork.chainId?.toString());
+        if (oldNetwork) {
+            window.location.reload();
+        }
+    });
+    checkIfWalletIsConnected()
+  }, [eth])
   
   const LoadingIndicator = props => {
     const { promiseInProgress } = usePromiseTracker();
@@ -34,7 +57,7 @@ function App() {
             alignItems: "center"
           }}
         >
-          <ThreeDots color="#2BAD60" height="30" width="30" />
+          <Spinner color="#2BAD60" height="30" width="30" />
         </div>
       );  
    }
@@ -45,7 +68,11 @@ function App() {
       console.log("No ethereum found");
       alertService.error("Make sure you have metamask!");
     } else {
+      
       console.log("We have the ethereum object", ethereum);
+      if(eth && eth?.chainId &&  eth?.chainId!== "0x4"){
+        alertService.error("Make sure you are on the Rinkbey Network to interact");
+      }
     }
 
     const accounts = await ethereum.request({ method: 'eth_accounts' });
@@ -149,16 +176,17 @@ function App() {
 
       <Navbar>
         <Container>
+          
           <Navbar.Brand onClick={() => navigate("/")}>Idea Board</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
-                {currentAccount !== "" && (
+                {(currentAccount !== "") && (
                   <button onClick={askContractToMintNft} className="cta-button connect-wallet-button">
                     Mint NFT
                   </button>
                 )}
-                {currentAccount === "" &&
+                {currentAccount === "" && 
                   renderNotConnectedContainer()
                 }
             </Navbar.Text>
