@@ -10,7 +10,7 @@ import { trackPromise } from 'react-promise-tracker';
 export default function Home(){
 
     const navigate = useNavigate();
-    const CONTRACT_ADDRESS = "0x4bD1177a4B59bB9E26f32F43c78BB2760a42006C";
+    const CONTRACT_ADDRESS = "0x0e0D1fED7A374597806e8b7730ef32CB8408133B";
 
     const [ideaList, setIdeaList] = useState([]);
     const [hasAccess, setHasAccess] = useState(false);
